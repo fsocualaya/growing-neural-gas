@@ -1,1 +1,1 @@
-# growing-neural-gas
+# Growing Neural Gas
