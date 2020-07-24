@@ -3,7 +3,7 @@
 #include "Graph/Graph.h"
 
 int main() {
-    Image image("../img/utec_2.png");
+    Image image("../img/fist.jpg");
 
     // Image edges(image.canny().getBinaryMatrix());
 

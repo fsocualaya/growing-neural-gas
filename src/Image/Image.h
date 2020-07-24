@@ -15,22 +15,21 @@ typedef std::vector<int> intVector ;
 typedef std::vector<cv::Point> pointVector;
 typedef std::vector<intVector> intMatrix;
 
-#define THRESHOLD 250
+#define THRESHOLD 150
 
 #define ON 255
 #define OFF 0
 #define GREEN cv::Scalar(OFF, ON, OFF)
+#define BLUE cv::Scalar(ON, OFF, OFF)
 
-#define BLACK cv::Scalar(OFF, OFF, OFF)
+#define W1_FACTOR 0.05
+#define WN_FACTOR 0.0006
+#define MAX_AGE 100
+#define LAMBDA 300
+#define MAX_NODE_COUNT 20
 
-#define W1_FACTOR 0.0005
-#define WN_FACTOR 0.0003
-#define MAX_AGE 20
-#define LAMBDA 5
-#define MAX_NODE_COUNT 10000
-
-#define ALPHA 0.01
-#define BETA 0.02
+#define ALPHA 0.5
+#define BETA 0.0005
 
 class Image {
     cv::Mat content;
@@ -41,6 +40,7 @@ public:
     explicit Image(const std::string&);
     explicit Image(const intMatrix&);
     void displayImage();
+    void write(std::string filename, const int& iteration, const cv::Mat& image);
 
     Image GNG();
     Image canny();

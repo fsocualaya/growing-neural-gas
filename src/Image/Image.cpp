@@ -6,6 +6,7 @@
 #include "Image.h"
 
 void Image::readImage(const std::string& filename) {
+
     content = cv::imread(filename);
     if(!content.data) {
         std::cerr << "An error occurred while opening the file\n";
@@ -28,7 +29,7 @@ Image Image::GNG() {
 
     srand(time(nullptr));
 
-    Image gng;
+    Image gng = *this;
     gng.content = content;
     Graph network;
     network.addNode();
@@ -41,7 +42,8 @@ Image Image::GNG() {
     // Iterates over all the bounds
     int signals_generated = 0;
     auto boundaries = getBoundaries();
-    while(true){ // TODO: Change stop criteria and the way to get
+    do{ // TODO: Change stop criteria and the way to get
+        std::cout<<"Iteration: "<< signals_generated<< " Nodes: "<< network.adj_list.size()<<'\n';
         // Iterates over all the current nodes to find the winner
         cv::Point bound = boundaries[rand() % boundaries.size()];
         auto winners = network.getWinners(bound);
@@ -74,7 +76,7 @@ Image Image::GNG() {
         }
 
         // Add node to the graph
-        if(!(signals_generated % LAMBDA) && network.adj_list.size() <= MAX_NODE_COUNT) {
+        if(signals_generated % LAMBDA == 0 && network.adj_list.size() < MAX_NODE_COUNT) {
             auto larger_error_node = *network.adj_list.begin() ;
             for (auto &node:network.adj_list) {
                 if (node->error > larger_error_node->error)
@@ -108,16 +110,17 @@ Image Image::GNG() {
             network.getNode(larger_error_neighbour->index)->error *= ALPHA;
 
             new_node->error = larger_error_node->error;
-        }
-        for(auto&node:network.adj_list)
-            node->error -= BETA * node->error;
 
-        if(signals_generated >= boundaries.size() || network.adj_list.size()>= MAX_NODE_COUNT)
-            break;
+            // gng = *this;
+            // gng.plotGraph(network);
+            // gng.write("utec_1.jpg",signals_generated, gng.content);
+        }
+        for(auto&node:network.adj_list) {
+            node->error -= BETA * node->error;
+        }
 
         signals_generated++;
-        std::cout<<"Iteration: "<< signals_generated<< " Nodes: "<< network.adj_list.size()<<'\n';
-    }
+    }while(signals_generated <= 5 * boundaries.size());
 
     network.print();
     plotGraph(network);
@@ -178,7 +181,7 @@ Image::Image(const intMatrix& matrix){
 }
 
 void Image::drawCircle(const cv::Point& point) {
-    cv::circle(this->content, point, 5, GREEN, 5);
+    cv::circle(this->content, point, 1, GREEN, 1);
 }
 
 pointVector Image::getBoundaries() {
@@ -204,5 +207,11 @@ void Image::plotGraph(Graph& graph) {
 }
 
 void Image::drawLine(const cv::Point &src,const cv::Point& dst) {
-    cv::line(this->content, src, dst, GREEN, 3);
+    cv::line(this->content, src, dst, BLUE, 1);
 }
+
+void Image::write(std::string filename,  const int &iteration, const cv::Mat& image) {
+    std::string path = "../results/"+ std::to_string(iteration)  + filename;
+    cv::imwrite(path, image);
+}
+
